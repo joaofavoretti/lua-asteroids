@@ -114,6 +114,18 @@ function Level:_drawLifes()
 	end
 end
 
+function Level:_drawScore()
+	local screenWidth = love.graphics.getWidth()
+	local scoreText = tostring(self.score)
+	local fontSize = 24
+	local font = love.graphics.newFont(fontSize)
+	love.graphics.setFont(font)
+	local textWidth = font:getWidth(scoreText)
+	local x = (screenWidth - textWidth) / 2
+	love.graphics.setColor(0, 0, 0)
+	love.graphics.print(scoreText, x, 50)
+end
+
 function Level:_drawEndGame()
 	local screenWidth = love.graphics.getWidth()
 	local screenHeight = love.graphics.getHeight()
@@ -141,6 +153,7 @@ function Level:draw()
 	end
 
 	self:_drawLifes()
+	self:_drawScore()
 	self.aircraft:draw()
 
 	for _, asteroid in ipairs(self.asteroids) do
