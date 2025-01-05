@@ -1,5 +1,6 @@
 local AirCraft = require("aircraft")
 local Asteroid = require("asteroid")
+local Explosion = require("explosion")
 
 local AirCraftInitialX = love.graphics.getWidth() / 2
 local AirCraftInitialY = love.graphics.getHeight() / 2
@@ -9,6 +10,7 @@ local Lifes = 3
 local Level = {
 	aircraft = AirCraft:new(AirCraftInitialX, AirCraftInitialY, AirCraftSize),
 	asteroids = {},
+	explosions = {},
 	maxAsteroids = 10,
 	asteroidSpawnTimer = 0,
 	asteroidSpawnInterval = 2, -- Spawn a new asteroid every 5 seconds
@@ -47,14 +49,27 @@ function Level:update(dt)
 		return
 	end
 
+	-- Update the aircraft and bullet positions
 	self.aircraft:update(dt, self.asteroids)
-	local craftCollision = self.aircraft:checkCraftCollision(self.asteroids)
 
+	-- Check for collisions between bullets and asteroids
+	local projectileIndex, asterdoidIndex = self.aircraft:checkBulletCollision(self.asteroids)
+	if projectileIndex ~= -1 and asterdoidIndex ~= -1 then
+		table.remove(self.aircraft.projectiles, projectileIndex)
+		table.remove(self.asteroids, asterdoidIndex)
+		self.score = self.score + 50
+	end
+
+	-- Check for collisions between the aircraft and asteroids
+	local craftCollision = self.aircraft:checkCraftCollision(self.asteroids)
 	if craftCollision then
 		self.lifes = self.lifes - 1
+		local explosion = Explosion:new(self.aircraft.x, self.aircraft.y)
+		table.insert(self.explosions, explosion)
 		self:resetAirCraft()
 	end
 
+	-- Asteroid insertion
 	self.asteroidSpawnTimer = self.asteroidSpawnTimer + dt
 	if self.asteroidSpawnTimer >= self.asteroidSpawnInterval and #self.asteroids < self.maxAsteroids then
 		self.asteroidSpawnTimer = 0
@@ -66,8 +81,17 @@ function Level:update(dt)
 		table.insert(self.asteroids, asteroid)
 	end
 
+	-- Asteroid update
 	for _, asteroid in ipairs(self.asteroids) do
 		asteroid:update(dt)
+	end
+
+	-- Explosion update
+	for i, explosion in ipairs(self.explosions) do
+		explosion:update(dt)
+		if explosion:isFinished() then
+			table.remove(self.explosions, i)
+		end
 	end
 end
 
@@ -121,6 +145,10 @@ function Level:draw()
 
 	for _, asteroid in ipairs(self.asteroids) do
 		asteroid:draw()
+	end
+
+	for _, explosion in ipairs(self.explosions) do
+		explosion:draw()
 	end
 end
 

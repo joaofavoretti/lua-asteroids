@@ -78,19 +78,23 @@ function AirCraft:_updateMove(dt)
 	end
 end
 
-function AirCraft:_updateShoot(dt, asteroids)
-	for i, projectile in ipairs(self.projectiles) do
+function AirCraft:_updateShoot(dt)
+	for projectileIndex, projectile in ipairs(self.projectiles) do
 		projectile:update(dt)
 		if not projectile:isAlive() then
-			table.remove(self.projectiles, i)
-		end
-
-		local index = projectile:isColliding(asteroids)
-		if index > 0 then
-			table.remove(asteroids, index)
-			table.remove(self.projectiles, i)
+			table.remove(self.projectiles, projectileIndex)
 		end
 	end
+end
+
+function AirCraft:checkBulletCollision(asteroids)
+	for projectileIndex, projectile in ipairs(self.projectiles) do
+		local asteroidIndex = projectile:isColliding(asteroids)
+		if asteroidIndex > 0 then
+			return projectileIndex, asteroidIndex
+		end
+	end
+	return -1, -1
 end
 
 function AirCraft:checkCraftCollision(asteroids)
@@ -147,7 +151,7 @@ end
 
 function AirCraft:update(dt, asteroids)
 	self:_updateMove(dt)
-	self:_updateShoot(dt, asteroids)
+	self:_updateShoot(dt)
 end
 
 function AirCraft:_drawProjectiles()
