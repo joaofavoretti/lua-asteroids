@@ -21,5 +21,5 @@ This is a simple asteroids game written in Lua using the LÖVE framework.
 
 ## Image
 
-[Image](assets/image.png)
+![Image](assets/image.png)
 
