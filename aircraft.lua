@@ -15,6 +15,7 @@ function AirCraft:new(x, y, size)
 	self.maxSpeed = 200
 	self.rotationSpeed = 2
 	self.acceleration = 100
+	self.pushBackAcceleration = 15
 	self.deceleration = 50
 	self.accelerating = false
 
@@ -35,12 +36,13 @@ function AirCraft:_updateMove(dt)
 		local ay = math.sin(self.angle) * self.acceleration
 		self.vx = self.vx + ax * dt
 		self.vy = self.vy + ay * dt
-	elseif love.keyboard.isDown("s") then
-		self.accelerating = true
-		local ax = math.cos(self.angle) * self.deceleration
-		local ay = math.sin(self.angle) * self.deceleration
-		self.vx = self.vx - ax * dt
-		self.vy = self.vy - ay * dt
+	-- No way of going backwards
+	-- elseif love.keyboard.isDown("s") then
+	-- 	self.accelerating = true
+	-- 	local ax = math.cos(self.angle) * self.deceleration
+	-- 	local ay = math.sin(self.angle) * self.deceleration
+	-- 	self.vx = self.vx - ax * dt
+	-- 	self.vy = self.vy - ay * dt
 	else
 		self.accelerating = false
 		-- Apply friction to gradually reduce speed when no key is pressed
@@ -141,11 +143,18 @@ end
 
 function AirCraft:keypressed(key)
 	if key == "space" then
+		-- Create the proectile
 		local angle = self.angle
 		local x = self.x + self.width / 2 + math.cos(angle) * self.width
 		local y = self.y + self.height / 2 + math.sin(angle) * self.height
 		local projectile = Projectile:new(x, y, angle)
 		table.insert(self.projectiles, projectile)
+
+		-- Push the aircraft back
+		local ax = math.cos(angle) * -self.pushBackAcceleration
+		local ay = math.sin(angle) * -self.pushBackAcceleration
+		self.vx = self.vx + ax
+		self.vy = self.vy + ay
 	end
 end
 

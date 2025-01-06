@@ -7,6 +7,10 @@ function Explosion:new(x, y)
 	self.y = y
 	self.finished = false
 	self.lines = self:generateLines(7, 0.5)
+
+	local explosionSound = love.audio.newSource("assets/explosion.wav", "static")
+	explosionSound:play()
+
 	return self
 end
 

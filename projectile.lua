@@ -12,6 +12,10 @@ function Projectile:new(x, y, angle)
 	self.vy = math.sin(self.angle) * self.speed
 	self.ttl = 1.2
 	self.alive = true
+
+	local shootSound = love.audio.newSource("assets/shoot.wav", "static")
+	shootSound:play()
+
 	return self
 end
 
